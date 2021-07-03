@@ -1,0 +1,44 @@
+#!/bin/sh -m
+# audrey - audio recorder, yes.
+
+pid=/tmp/audrey_pid  mic=  desktop=  out=
+
+case $1 in
+	-s) exec pkill -INT -F $pid;;
+	-*) ;;
+	*) out=$1
+esac
+
+# only allow one instance to be running at a time
+pgrep -F $pid && exec ! notify-send "audrey is already running"
+
+# eval allows runtime command execution in variables
+[ "$out" ] ||
+	eval out=\""${audrey_dir:=$PWD}/${audrey_file:=$(date '+%Y-%m-%d_%H-%M-%S').mp3}"\"
+# create dir
+mkdir -p "${out%/*}"
+
+# get default out device
+set -- $(ffmpeg -hide_banner -sinks pulse | sed -n 's/^* //p')
+desktop="-f pulse -i $1.monitor"
+
+# get default input device (microphone)
+set -- $(ffmpeg -hide_banner -sources pulse | sed -n 's/^* //p')
+case $1 in
+*aloop*|*monitor) ;;  # ignore loopback devices
+*)
+	mic="-f pulse -i $1"
+	# combine the mic and desktop audio into one stream (causes a slight delay before recording starts & ends)
+	mic="$mic -filter_complex amix=inputs=2:duration=first:dropout_transition=1000,volume=1"
+esac
+
+notify-send "started audrey"
+ffmpeg -y    \
+	-v error   \
+	$desktop   \
+	$mic       \
+	-b:a 256K  \
+	"$out" &
+echo $! > $pid
+fg %1
+notify-send "stopped audrey"

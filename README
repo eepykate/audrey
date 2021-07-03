@@ -1,0 +1,10 @@
+audrey - audio recorder, yes
+
+examples:
+ $ audrey
+ $ audrey -s
+ $ audrey file.mp3
+
+vars (supports runtime command execution):
+ audrey_dir
+ audrey_file
