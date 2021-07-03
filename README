@@ -1,10 +1,13 @@
 audrey - audio recorder, yes
 
-examples:
+Companion of scr (Super CRappy SCReenshot SCRipt for Sound Cloud Rappers)
+(https://github.com/6gk/scr)
+
+examples
  $ audrey
  $ audrey -s
  $ audrey file.mp3
 
-vars (supports runtime command execution):
+vars (supports runtime command execution)
  audrey_dir
  audrey_file
