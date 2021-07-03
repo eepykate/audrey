@@ -1,5 +1,6 @@
 #!/bin/sh
 # audrey - audio recorder, yes.
+#  MIT License, 6gk/gk/gtk
 #  shellcheck disable=1007,2046,2086
 
 pid=/tmp/audrey_pid  mic=  desktop=  out=
