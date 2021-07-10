@@ -3,7 +3,7 @@
 #  MIT License, 6gk/gk/gtk
 #  shellcheck disable=1007,2046,2086
 
-pid=/tmp/audrey_pid  mic=  desktop=  out=
+pid=/tmp/audrey_pid  mic=  desktop=  bruh=  out=
 
 case $1 in
 	-s) exec pkill -INT -F $pid;;
@@ -30,7 +30,9 @@ case $1 in
 	*)
 		mic="-f pulse -i $1"
 		# combine the mic and desktop audio into one stream (causes a slight delay/loss when recording starts & ends)
-		mic="$mic -filter_complex amix=inputs=2:duration=first:dropout_transition=1000,volume=1"
+		mic="$mic -filter_complex amerge"
+		# ffmpeg/pulse seems to add a delay to one of the streams, this makes them sync better [for me]
+		bruh="-ss 2"
 esac
 
 
@@ -39,13 +41,14 @@ notify-send "started audrey"
 
 ffmpeg -y    \
 	-v error   \
+	$bruh      \
 	$desktop   \
 	$mic       \
 	-b:a 256K  \
 	"$out" &
 echo $! > $pid
 
-# handle ^c
-trap 'kill -INT $!';  wait
+# handle ^c / pkill
+trap '' INT; trap 'kill -INT $!' TERM;  wait
 
 notify-send "stopped audrey"
